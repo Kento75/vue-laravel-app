@@ -19,9 +19,10 @@ services:
 
   postgres:
     restart: always
-    image: postgres:alpine
+    image: postgres:10-alpine
     container_name: "laravel-postgres"
     environment:
+      POSTGRES_DB: vuesplash
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
     ports:
