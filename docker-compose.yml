@@ -26,6 +26,6 @@ services:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
     ports:
-      - 5432:5432
+      - 15432:5432
     volumes:
       - ./postgresql:/var/lib/postgresql/data
