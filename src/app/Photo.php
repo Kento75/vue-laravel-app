@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Photo extends Model
 {
-    /** プライマリキー型 */
-    protected $keyType = "string";
+    /** プライマリキーの型 */
+    protected $keyType = 'string';
 
     /** IDの桁数 */
     const ID_LENGTH = 12;
@@ -16,7 +16,7 @@ class Photo extends Model
     {
         parent::__construct($attributes);
 
-        if(!array_get($this->attributes, "id")) {
+        if (! array_get($this->attributes, 'id')) {
             $this->setId();
         }
     }
@@ -26,24 +26,25 @@ class Photo extends Model
      */
     private function setId()
     {
-        $this->attributes["id"] = $this->getRandomId();
+        $this->attributes['id'] = $this->getRandomId();
     }
 
     /**
      * ランダムなID値を生成する
+     * @return string
      */
     private function getRandomId()
     {
         $characters = array_merge(
-            range(0, 9), range("a", "z"),
-            range("A", "Z"), ["-", "_"]
+            range(0, 9), range('a', 'z'),
+            range('A', 'Z'), ['-', '_']
         );
 
         $length = count($characters);
 
         $id = "";
 
-        for($i = 0; $i < self::ID_LENGTH; $i++) {
+        for ($i = 0; $i < self::ID_LENGTH; $i++) {
             $id .= $characters[random_int(0, $length - 1)];
         }
 

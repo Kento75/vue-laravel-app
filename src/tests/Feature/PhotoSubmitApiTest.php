@@ -4,13 +4,12 @@ namespace Tests\Feature;
 
 use App\Photo;
 use App\User;
-
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 
 class PhotoSubmitApiTest extends TestCase
 {
@@ -28,24 +27,25 @@ class PhotoSubmitApiTest extends TestCase
      */
     public function should_ファイルをアップロードできる()
     {
-        // テスト用ストレージを利用
-        // -> Storage/framework/testing
-        Storage::fake("s3");
+        // S3ではなくテスト用のストレージを使用する
+        // → storage/framework/testing
+        Storage::fake('s3');
 
         $response = $this->actingAs($this->user)
-            ->json("POST", route("photo.create"), [
+            ->json('POST', route('photo.create'), [
                 // ダミーファイルを作成して送信している
-                "photo" => UploadedFile::fake()->image("photo.jpg"),
+                'photo' => UploadedFile::fake()->image('photo.jpg'),
             ]);
 
-        // レスポンスが201であること
+        // レスポンスが201(CREATED)であること
         $response->assertStatus(201);
 
         $photo = Photo::first();
-        // 写真のIDが12桁のランダムな文字列であること
-        $this->assertRegExp("/^[0-9a-zA-Z-_]{12}$/", $photo->id);
 
-        // DBに挿入されたファイル名のファイルがストレージにほぞんされていること
+        // 写真のIDが12桁のランダムな文字列であること
+        $this->assertRegExp('/^[0-9a-zA-Z-_]{12}$/', $photo->id);
+
+        // DBに挿入されたファイル名のファイルがストレージに保存されていること
         Storage::cloud()->assertExists($photo->filename);
     }
 
@@ -54,16 +54,17 @@ class PhotoSubmitApiTest extends TestCase
      */
     public function should_データベースエラーの場合はファイルを保存しない()
     {
-        Schema::drop("photos");
+        // 乱暴だがこれでDBエラーを起こす
+        Schema::drop('photos');
 
-        Storage::fake("s3");
+        Storage::fake('s3');
 
         $response = $this->actingAs($this->user)
-            ->json("POST", route("photo.create"), [
-                "photo" => UploadedFile::fake()->image("photo.jpg"),
+            ->json('POST', route('photo.create'), [
+                'photo' => UploadedFile::fake()->image('photo.jpg'),
             ]);
 
-        // レスポンスが500であること
+        // レスポンスが500(INTERNAL SERVER ERROR)であること
         $response->assertStatus(500);
 
         // ストレージにファイルが保存されていないこと
@@ -75,21 +76,20 @@ class PhotoSubmitApiTest extends TestCase
      */
     public function should_ファイル保存エラーの場合はDBへの挿入はしない()
     {
-        // ストレージをモックにして保存時にエラーを起こさせる
-        Storage::shouldReceive("cloud")
+        // ストレージをモックして保存時にエラーを起こさせる
+        Storage::shouldReceive('cloud')
             ->once()
             ->andReturnNull();
 
         $response = $this->actingAs($this->user)
-            ->json("POST", route("photo.create"), [
-                "photo" => UploadedFile::fake()->image("photo.jpg"),
+            ->json('POST', route('photo.create'), [
+                'photo' => UploadedFile::fake()->image('photo.jpg'),
             ]);
 
-        // レスポンスが500であること
+        // レスポンスが500(INTERNAL SERVER ERROR)であること
         $response->assertStatus(500);
 
-        // データベースになにも挿入されていないこと
+        // データベースに何も挿入されていないこと
         $this->assertEmpty(Photo::all());
     }
-
 }
