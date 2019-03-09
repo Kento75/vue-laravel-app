@@ -2530,7 +2530,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   },
   data: function data() {
     return {
-      photo: null
+      photo: null,
+      fullWidth: false
     };
   },
   methods: {
@@ -4898,38 +4899,54 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _vm.photo
-    ? _c("div", { staticClass: "photo-detail" }, [
-        _c(
-          "figure",
-          { staticClass: "photo-detail__pane photo-detail__image" },
-          [
-            _c("img", { attrs: { src: _vm.photo.url, alt: "" } }),
-            _vm._v(" "),
-            _c("figure", [_vm._v("Posted by " + _vm._s(_vm.photo.owner.name))])
-          ]
-        ),
-        _vm._v(" "),
-        _c("div", { staticClass: "photo-detail__pane" }, [
-          _vm._m(0),
-          _vm._v(" "),
+    ? _c(
+        "div",
+        {
+          staticClass: "photo-detail",
+          class: { "photo-detail--column": _vm.fullWidth }
+        },
+        [
           _c(
-            "a",
+            "figure",
             {
-              staticClass: "button",
-              attrs: {
-                href: "/photos/" + _vm.photo.id + "/download",
-                title: "Download photo"
+              staticClass: "photo-detail__pane photo-detail__image",
+              on: {
+                click: function($event) {
+                  _vm.fullWidth = !_vm.fullWidth
+                }
               }
             },
             [
-              _c("i", { staticClass: "icon ion-md-arrow-round-down" }),
-              _vm._v("Download\n    ")
+              _c("img", { attrs: { src: _vm.photo.url, alt: "" } }),
+              _vm._v(" "),
+              _c("figure", [
+                _vm._v("Posted by " + _vm._s(_vm.photo.owner.name))
+              ])
             ]
           ),
           _vm._v(" "),
-          _vm._m(1)
-        ])
-      ])
+          _c("div", { staticClass: "photo-detail__pane" }, [
+            _vm._m(0),
+            _vm._v(" "),
+            _c(
+              "a",
+              {
+                staticClass: "button",
+                attrs: {
+                  href: "/photos/" + _vm.photo.id + "/download",
+                  title: "Download photo"
+                }
+              },
+              [
+                _c("i", { staticClass: "icon ion-md-arrow-round-down" }),
+                _vm._v("Download\n    ")
+              ]
+            ),
+            _vm._v(" "),
+            _vm._m(1)
+          ])
+        ]
+      )
     : _vm._e()
 }
 var staticRenderFns = [
