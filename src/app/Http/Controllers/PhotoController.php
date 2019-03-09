@@ -15,7 +15,7 @@ class PhotoController extends Controller
     {
         // 認証が必要
         //　写真一覧画面、ダウンロード機能は認証を必要としない
-        $this->middleware('auth')->except(['index', 'download']);
+        $this->middleware('auth')->except(['index', 'show', 'download']);
     }
 
     /**
@@ -66,6 +66,17 @@ class PhotoController extends Controller
             ->orderBy(Photo::CREATED_AT, "desc")->paginate();
 
         return $photos;
+    }
+
+    /**
+     * 写真詳細
+     * @param string $id
+     * @return Photo
+     */
+    public function show(string $id) {
+        $photo = Photo::where("id", $id)->with(["owner"])->first();
+
+        return $photo ?? abort(404);
     }
 
     /**
