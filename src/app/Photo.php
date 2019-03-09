@@ -18,16 +18,6 @@ class Photo extends Model
         'url',
     ];
 
-    // /** JSONに含めない属性
-    //  *  id,url,ownerのみレスポンスに含める
-    //  */
-    // protected $hidden = [
-    //     "user_id",
-    //     "filename",
-    //     self::CREATED_AT,
-    //     self::UPDATED_AT,
-    // ];
-
     /**
      * JSONに含める情報
      * id,url,owner
@@ -37,6 +27,9 @@ class Photo extends Model
         "owner",
         "url",
     ];
+
+    // 1ページあたりの写真表示数
+    protected $perPage = 9;
 
     public function __construct(array $attributes = [])
     {

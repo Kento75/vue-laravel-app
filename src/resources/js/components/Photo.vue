@@ -1,13 +1,16 @@
 <template>
   <div class="photo">
     <figure class="photo__wrapper">
-      <img class="photo__image photo__image--portrait"
+      <img class="photo__image"
+           :class="imageClass"
            :src="item.url"
            :alt="`Photo by ${item.owner.name}`"
+           @load="setAspectRatio"
+           ref="image"
       >
     </figure>
     <RouterLink class="photo__overlay"
-           :to="`/photos/$item.id`"
+           :to="`/photos/${item.id}`"
            :title="`View the photo by ${item.owner.name}`"
     >
       <div class="photo__controls">
@@ -36,6 +39,41 @@ export default {
     item: {
       type: Object,
       required: true,
+    }
+  },
+  data() {
+    return {
+      landscape: false,
+      portrait: false
+    }
+  },
+  computed: {
+    imageClass() {
+      return {
+        // 横長クラス
+        "photo__image--landscape": this.landscape,
+        // 縦長クラス
+        "photo__image--portrait": this.portrait
+      }
+    }
+  },
+  methods: {
+    setAspectRatio() {
+      if(!this.$refs.image) {
+        return false
+      }
+      const height = this.$refs.image.clientHeight
+      const width = this.$refs.image.clientWidth
+      // 縦横比率3:4よりも横長の画像
+      this.landscape = height / width <= 0.75
+      //　縦長でない場合
+      this.portrait = !this.landscape
+    }
+  },
+  watch: {
+    $route() {
+      this.landscape = false
+      this.portrait = false
     }
   }
 }
