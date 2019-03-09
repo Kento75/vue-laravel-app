@@ -14,7 +14,8 @@ class PhotoController extends Controller
     public function __construct()
     {
         // 認証が必要
-        $this->middleware('auth');
+        //　写真一覧画面は認証を必要としない
+        $this->middleware('auth')->except(["index"]);
     }
 
     /**
@@ -54,5 +55,16 @@ class PhotoController extends Controller
         // リソースの新規作成なので
         // レスポンスコードは201(CREATED)を返却する
         return response($photo, 201);
+    }
+
+    /**
+     * 写真一覧
+     */
+    public function index()
+    {
+        $photos = Photo::with(["owner"])
+            ->orderBy(Photo::CREATED_AT, "desc")->paginate();
+
+        return $photos;
     }
 }
