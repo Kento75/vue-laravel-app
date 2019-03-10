@@ -26,6 +26,7 @@ class Photo extends Model
         "id",
         "owner",
         "url",
+        "comments",
     ];
 
     // 1ページあたりの写真表示数
@@ -76,6 +77,14 @@ class Photo extends Model
     public function owner()
     {
         return $this->belongsTo("App\User", "user_id", "id", "users");
+    }
+
+    /**
+     * commentsテーブル リレーションシップ
+     */
+    public function comments()
+    {
+        return $this->hasMany("App\Comment")->orderBy("id", "desc");
     }
 
     /**
