@@ -14,7 +14,14 @@
       <h2 class="photo-detail__title">
         <i class="icon ion-md-chatboxes"></i>Comments
       </h2>
-      <form @submit.prevent="addComment" class="form">
+      <ul v-if="photo.comments.length > 0" class="photo_detail__comments">
+        <li v-for="comment in photo.comments" :key="comment.content" class="photo-detail__commentItem">
+          <p class="photo-detail__commentBody">{{ comment.content }}</p>
+          <p class="photo-detail__commentInfo">{{ comment.author.name }}</p>
+        </li>
+      </ul>
+      <p v-else>No comments yet.</p>
+      <form v-if="isLogin" @submit.prevent="addComment" class="form">
         <div v-if="commentErrors" class="errors">
           <ul v-if="commentErrors.content">
             <li v-for="msg in commentErrors.content" :key="msg">{{ msg }}</li>
@@ -43,8 +50,12 @@ export default {
     return {
       photo: null,
       commentContent: '',
-      commentErrors: null,
-      fullWidth: false
+      commentErrors: null
+    }
+  },
+  computed: {
+    isLogin() {
+      return this.$store.getters["auth/check"]
     }
   },
   methods: {
@@ -79,6 +90,11 @@ export default {
         this.$store.commit('error/setCode', response.status)
         return false
       }
+
+      this.$set(this.photo, "comments", [
+        response.data,
+        ...this.photo.comments
+      ]);
     }
   },
   watch: {

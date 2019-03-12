@@ -6,16 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
 {
-    /** JSONに含める情報 */
+    /** JSONに含める属性 */
     protected $visible = [
-        "author", "content",
+        'author', 'content',
     ];
 
     /**
-     * リレーションシップ usersテーブル
+     * リレーションシップ - usersテーブル
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function author()
     {
-        return $this->belongsTo("App\User", "user_id", "id", "users");
+        return $this->belongsTo('App\User', 'user_id', 'id', 'users');
     }
 }
