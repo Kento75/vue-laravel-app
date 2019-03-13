@@ -80,6 +80,14 @@ class Photo extends Model
     }
 
     /**
+     * Usersテーブル リレーションシップ
+     */
+    public function likes()
+    {
+        return $this->belongsToMany("App\User", "likes")->withTimestamps();
+    }
+
+    /**
      * commentsテーブル リレーションシップ
      */
     public function comments()
