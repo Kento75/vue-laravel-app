@@ -9,6 +9,8 @@ class Photo extends Model
     protected $keyType = 'string';
     /** IDの桁数 */
     const ID_LENGTH = 12;
+    /** 1ページあたりの表示数 */
+    protected $perPage = 9;
     /** JSONに含めるアクセサ */
     protected $appends = [
         'url', 'likes_count', 'liked_by_user',
