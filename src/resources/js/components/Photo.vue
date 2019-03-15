@@ -1,34 +1,40 @@
 <template>
   <div class="photo">
     <figure class="photo__wrapper">
-      <img class="photo__image"
-           :class="imageClass"
-           :src="item.url"
-           :alt="`Photo by ${item.owner.name}`"
-           @load="setAspectRatio"
-           ref="image"
+      <img
+        class="photo__image"
+        :class="imageClass"
+        :src="item.url"
+        :alt="`Photo by ${item.owner.name}`"
+        @load="setAspectRatio"
+        ref="image"
       >
     </figure>
-    <RouterLink class="photo__overlay"
-           :to="`/photos/${item.id}`"
-           :title="`View the photo by ${item.owner.name}`"
+    <RouterLink
+      class="photo__overlay"
+      :to="`/photos/${item.id}`"
+      :title="`View the photo by ${item.owner.name}`"
     >
       <div class="photo__controls">
-        <button class="photo__action photo__action--like"
-                title="Like photo"
+        <button
+          class="photo__action photo__action--like"
+          :class="{'photo__action--liked': item.liked_by_user}"
+          title="Like photo"
+          @click.prevent="like"
         >
-          <i class="icon ion-md-heart"></i>12
+          <i class="icon ion-md-heart"></i>
+          {{ item.likes_count }}
         </button>
-        <a class="photo__action" title="Download photo"
-           @click.stop
-           :href="`/photos/${item.id}/download`"
+        <a
+          class="photo__action"
+          title="Download photo"
+          @click.stop
+          :href="`/photos/${item.id}/download`"
         >
           <i class="icon ion-md-arrow-round-down"></i>
         </a>
       </div>
-      <div class="photo__username">
-        {{item.owner.name}}
-      </div>
+      <div class="photo__username">{{item.owner.name}}</div>
     </RouterLink>
   </div>
 </template>
@@ -38,14 +44,14 @@ export default {
   props: {
     item: {
       type: Object,
-      required: true,
+      required: true
     }
   },
   data() {
     return {
       landscape: false,
       portrait: false
-    }
+    };
   },
   computed: {
     imageClass() {
@@ -54,27 +60,33 @@ export default {
         "photo__image--landscape": this.landscape,
         // 縦長クラス
         "photo__image--portrait": this.portrait
-      }
+      };
     }
   },
   methods: {
     setAspectRatio() {
-      if(!this.$refs.image) {
-        return false
+      if (!this.$refs.image) {
+        return false;
       }
-      const height = this.$refs.image.clientHeight
-      const width = this.$refs.image.clientWidth
+      const height = this.$refs.image.clientHeight;
+      const width = this.$refs.image.clientWidth;
       // 縦横比率3:4よりも横長の画像
-      this.landscape = height / width <= 0.75
+      this.landscape = height / width <= 0.75;
       //　縦長でない場合
-      this.portrait = !this.landscape
+      this.portrait = !this.landscape;
+    },
+    like() {
+      this.$emit("like", {
+        id: this.item.id,
+        liked: this.item.liked_by_user
+      });
     }
   },
   watch: {
     $route() {
-      this.landscape = false
-      this.portrait = false
+      this.landscape = false;
+      this.portrait = false;
     }
   }
-}
+};
 </script>

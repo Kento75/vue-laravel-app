@@ -1,12 +1,18 @@
 <template>
   <div v-if="photo" class="photo-detail" :class="{ 'photo-detail--column': fullWidth }">
     <figure class="photo-detail__pane photo-detail__image" @click="fullWidth = !fullWidth">
-      <img :src="photo.url" alt="">
+      <img :src="photo.url" alt>
       <figure>Posted by {{ photo.owner.name }}</figure>
     </figure>
     <div class="photo-detail__pane">
-      <button class="button button--like" title="Like photo">
-        <i class="icon ion-md-heart"></i>12
+      <button
+        class="button button--like"
+        :class="{'button--liked': photo.liked_by_user}"
+        title="Like photo"
+        @click="onLikeClick"
+      >
+        <i class="icon ion-md-heart"></i>
+        {{photo.liked_count}}
       </button>
       <a :href="`/photos/${photo.id}/download`" class="button" title="Download photo">
         <i class="icon ion-md-arrow-round-down"></i>Download
@@ -15,7 +21,11 @@
         <i class="icon ion-md-chatboxes"></i>Comments
       </h2>
       <ul v-if="photo.comments.length > 0" class="photo_detail__comments">
-        <li v-for="comment in photo.comments" :key="comment.content" class="photo-detail__commentItem">
+        <li
+          v-for="comment in photo.comments"
+          :key="comment.content"
+          class="photo-detail__commentItem"
+        >
           <p class="photo-detail__commentBody">{{ comment.content }}</p>
           <p class="photo-detail__commentInfo">{{ comment.author.name }}</p>
         </li>
@@ -37,7 +47,7 @@
 </template>
 
 <script>
-import { OK, CREATED, UNPROCESSABLE_ENTITY } from "../util"
+import { OK, CREATED, UNPROCESSABLE_ENTITY } from "../util";
 
 export default {
   props: {
@@ -49,61 +59,94 @@ export default {
   data() {
     return {
       photo: null,
-      commentContent: '',
-      commentErrors: null
-    }
+      commentContent: "",
+      commentErrors: null,
+      fullWidth: false
+    };
   },
   computed: {
     isLogin() {
-      return this.$store.getters["auth/check"]
+      return this.$store.getters["auth/check"];
     }
   },
   methods: {
     async fetchPhoto() {
-      const response = await axios.get(`/api/photos/${this.id}`)
+      const response = await axios.get(`/api/photos/${this.id}`);
 
-      if(response.status !== OK) {
-        this.$store.commit("error/setCode", response.status)
-        return false
+      if (response.status !== OK) {
+        this.$store.commit("error/setCode", response.status);
+        return false;
       }
 
-      this.photo = response.data
+      this.photo = response.data;
     },
-    async addComment () {
-
+    async addComment() {
       const response = await axios.post(`/api/photos/${this.id}/comments`, {
         content: this.commentContent
-      })
+      });
 
       // バリデーションエラー
       if (response.status === UNPROCESSABLE_ENTITY) {
-        this.commentErrors = response.data.errors
-        return false
+        this.commentErrors = response.data.errors;
+        return false;
       }
 
-      this.commentContent = ''
+      this.commentContent = "";
       // エラーメッセージをクリア
-      this.commentErrors = null
+      this.commentErrors = null;
 
       // その他のエラー
       if (response.status !== CREATED) {
-        this.$store.commit('error/setCode', response.status)
-        return false
+        this.$store.commit("error/setCode", response.status);
+        return false;
       }
 
       this.$set(this.photo, "comments", [
         response.data,
         ...this.photo.comments
       ]);
+    },
+    async like() {
+      const response = await axios.put(`/api/photos/${this.id}/like`);
+      if (response.status !== OK) {
+        this.$store.commit("error/setCode", response.status);
+        return false;
+      }
+
+      this.$set(this.photo, "likes_count", this.photo.likes_count + 1);
+      this.$set(this.photo, "liked_by_user", true);
+    },
+    async unlike() {
+      const response = await axios.delete(`/api/photos/${this.id}/like`);
+
+      if (response.status !== OK) {
+        this.$store.commit("error/setCode", response.status);
+        return false;
+      }
+
+      this.$set(this.photo, "likes_count", this.photo.likes_count - 1);
+      this.$set(this.photo, "liked_by_user", false);
+    },
+    onLikeClick() {
+      if (!this.isLogin) {
+        alert("いいね機能を使うにはログインしてください。");
+        return false;
+      }
+
+      if (this.photo.liked_by_user) {
+        this.unlike();
+      } else {
+        this.like();
+      }
     }
   },
   watch: {
     $route: {
       async handler() {
-        await this.fetchPhoto()
+        await this.fetchPhoto();
       },
       immediate: true
     }
   }
-}
+};
 </script>
